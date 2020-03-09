@@ -81,6 +81,8 @@ const options = {
   watch: ['posts'];
   // Resources you explicitly dont want realtime updates for
   dontwatch: ['comments'];
+  // Enable timestamps on crete/edit
+  timestamps: true,
 }
 
 const dataProvider = FirebaseDataProvider(config, options);

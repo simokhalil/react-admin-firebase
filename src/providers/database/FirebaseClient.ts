@@ -81,13 +81,18 @@ export class FirebaseClient implements IFirebaseClient {
       if (!overridenId) {
         throw new Error("id must be a valid string");
       }
-      const docObj = {
-        ...data,
-        createdate: this.fireWrapper.serverTimestamp(),
-        lastupdate: this.fireWrapper.serverTimestamp(),
-        createdby: currentUserEmail,
-        updatedby: currentUserEmail
-      };
+
+      const docObj = this.options.timestamps
+        ? {
+          ...data,
+          createdate: this.fireWrapper.serverTimestamp(),
+          lastupdate: this.fireWrapper.serverTimestamp(),
+          createdby: currentUserEmail,
+          updatedby: currentUserEmail
+        } : {
+          ...data,
+        };
+
       await r.collection.doc(overridenId).set(docObj, { merge: true });
       return {
         data: {
@@ -98,13 +103,16 @@ export class FirebaseClient implements IFirebaseClient {
     }
     const newId = this.db.collection("collections").doc().id;
     const data = await this.parseDataAndUpload(r, newId, params.data);
-    const docObj = {
-      ...data,
-      createdate: this.fireWrapper.serverTimestamp(),
-      lastupdate: this.fireWrapper.serverTimestamp(),
-      createdby: currentUserEmail,
-      updatedby: currentUserEmail
-    };
+    const docObj = this.options.timestamps
+      ? {
+        ...data,
+        createdate: this.fireWrapper.serverTimestamp(),
+        lastupdate: this.fireWrapper.serverTimestamp(),
+        createdby: currentUserEmail,
+        updatedby: currentUserEmail
+      } : {
+        ...data,
+      };
     await r.collection.doc(newId).set(docObj, { merge: false });
     return {
       data: {
@@ -123,13 +131,19 @@ export class FirebaseClient implements IFirebaseClient {
     log("apiUpdate", { resourceName, resource: r, params });
     const currentUserEmail = await this.getCurrentUserEmail();
     const data = await this.parseDataAndUpload(r, id, params.data);
-    r.collection
-      .doc(id)
-      .update({
+
+    const docObj = this.options.timestamps
+      ? {
         ...data,
         lastupdate: this.fireWrapper.serverTimestamp(),
         updatedby: currentUserEmail
-      })
+      } : {
+        ...data,
+      };
+
+    r.collection
+      .doc(id)
+      .update(docObj)
       .catch(error => {
         logError("apiUpdate error", { error });
       });
@@ -152,13 +166,17 @@ export class FirebaseClient implements IFirebaseClient {
     const returnData = await Promise.all(
       ids.map(async id => {
         const data = await this.parseDataAndUpload(r, id, params.data);
-        r.collection
-          .doc(id)
-          .update({
+        const docObj = this.options.timestamps
+          ? {
             ...data,
             lastupdate: this.fireWrapper.serverTimestamp(),
             updatedby: currentUserEmail
-          })
+          } : {
+            ...data,
+          };
+        r.collection
+          .doc(id)
+          .update(docObj)
           .catch(error => {
             logError("apiUpdateMany error", { error });
           });

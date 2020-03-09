@@ -3,7 +3,7 @@
   "description": "A firebase data provider for the React Admin framework",
   "version": "0.9.0",
   "dependencies": {
-    "firebase": "6.1.x",
+    "firebase": "^7.9.x",
     "path-browserify": "^1.0.0",
     "ra-realtime": "^2.8.x",
     "react": "^16.x",
@@ -23,6 +23,7 @@
     "@types/rx": "^4.1.1",
     "concurrently": "^4.1.1",
     "cpx": "^1.5.0",
+    "firebase": "^7.9.1",
     "jest": "^23.6.0",
     "microbundle": "^0.11.0",
     "ts-jest": "^24.0.2",

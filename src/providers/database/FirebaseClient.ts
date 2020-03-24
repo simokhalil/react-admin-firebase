@@ -283,7 +283,7 @@ export class FirebaseClient implements IFirebaseClient {
     }
   }
 
-  private async parseDataAndUpload(r: IResource, id: string, data: any, path?: string) {
+  private async parseDataAndUpload(r: IResource, id: string, data: any, path?: string, parent?: string) {
     if (!data) {
       return data;
     }
@@ -320,8 +320,10 @@ export class FirebaseClient implements IFirebaseClient {
           );
         }
         if (!!val && typeof val === 'object' && !val.hasOwnProperty("rawFile")) {
-          docPath += `/${fieldName}`;
-          return this.parseDataAndUpload(r, id, val, docPath);
+          return this.parseDataAndUpload(r, id, val, docPath, fieldName);
+        }
+        if (parent) {
+          docPath += `/${parent}`;
         }
         await this.parseDataField(val, docPath, fieldName);
       })

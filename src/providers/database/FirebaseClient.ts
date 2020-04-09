@@ -325,9 +325,11 @@ export class FirebaseClient implements IFirebaseClient {
         }
 
         if (!!val && typeof val === 'object' && !val.hasOwnProperty("rawFile")) {
+          log("parseDataAndUpload : recalling with", { r, id, val, docPath, fieldName });
           return await this.parseDataAndUpload(r, id, val, docPath, fieldName);
         }
 
+        log("parseDataAndUpload : calling parseDataField", { val, docPath, fieldName });
         return await Promise.all([this.parseDataField(val, docPath, fieldName)]);
       })
     );

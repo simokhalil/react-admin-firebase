@@ -322,7 +322,7 @@ export class FirebaseClient implements IFirebaseClient {
 
         const docPathParts = docPath.split('/');
 
-        if (docPathParts[docPathParts.length - 1] !== parent) {
+        if (parent && docPathParts[docPathParts.length - 1] !== parent) {
           docPath += `/${parent}`;
         }
 

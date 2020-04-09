@@ -295,23 +295,23 @@ export class FirebaseClient implements IFirebaseClient {
         const isArray = Array.isArray(val);
         if (isArray) {
           await Promise.all(
-            (val as []).map((arrayObj, index) => {
+            (val as []).map(async (arrayObj, index) => {
               if (!!val[index] && val[index].hasOwnProperty("rawFile")) {
-                return Promise.all([
+                return await Promise.all([
                   this.parseDataField(val[index], docPath, fieldName + index)
                 ]);
               } else {
                 return Promise.all(
-                  Object.keys(arrayObj).map(arrayObjFieldName => {
+                  Object.keys(arrayObj).map(async arrayObjFieldName => {
                     const arrayObjVal: any = arrayObj[arrayObjFieldName];
                     if (!!arrayObjVal && typeof arrayObjVal === 'object' && !arrayObjVal.hasOwnProperty("rawFile")) {
                       docPath += `/${index}/${fieldName}`;
-                      return this.parseDataAndUpload(r, id, arrayObjVal, docPath);
+                      return await this.parseDataAndUpload(r, id, arrayObjVal, docPath);
                     }
-                    return this.parseDataField(
+                    return await this.parseDataField(
                       arrayObjVal,
                       docPath,
-                      `/${fieldName}/${index}/${arrayObjFieldName}`
+                      `${parent ? '/' + parent : ''}/${fieldName}/${index}/${arrayObjFieldName}`
                     );
                   })
                 );
@@ -320,14 +320,16 @@ export class FirebaseClient implements IFirebaseClient {
           );
         }
         if (!!val && typeof val === 'object' && !val.hasOwnProperty("rawFile")) {
-          return this.parseDataAndUpload(r, id, val, docPath, fieldName);
+          return await this.parseDataAndUpload(r, id, val, docPath, fieldName);
         }
         if (parent) {
           docPath += `/${parent}`;
         }
-        await this.parseDataField(val, docPath, fieldName);
+        return await Promise.all([this.parseDataField(val, docPath, fieldName)]);
       })
     );
+
+    console.log('data', data);
     return data;
   }
 

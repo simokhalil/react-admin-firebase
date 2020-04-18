@@ -289,7 +289,7 @@ export class FirebaseClient implements IFirebaseClient {
     }
     let docPath = path ? path : r.collection.doc(id).path;
 
-    await Promise.all(
+
       Object.keys(data).map(async fieldName => {
         const val = data[fieldName];
         const isArray = Array.isArray(val);
@@ -345,8 +345,7 @@ export class FirebaseClient implements IFirebaseClient {
 
         log("parseDataAndUpload : calling parseDataField", { val, docPath, fieldName });
         return await Promise.all([this.parseDataField(val, docPath, fieldName)]);
-      })
-    );
+      });
 
     console.log('data', data);
     return data;

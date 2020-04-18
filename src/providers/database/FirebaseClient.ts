@@ -301,20 +301,25 @@ export class FirebaseClient implements IFirebaseClient {
                   this.parseDataField(val[index], docPath, fieldName + index)
                 ]);
               } else {
+                let parentAdded = false;
+                let indexAdded = false;
+
                 return Promise.all(
                   Object.keys(arrayObj).map(async arrayObjFieldName => {
                     const arrayObjVal: any = arrayObj[arrayObjFieldName];
+
+                    if (parent && !parentAdded) {
+                      docPath += `/${parent}`;
+                      parentAdded = true;
+                    }
+
                     if (!!arrayObjVal && typeof arrayObjVal === 'object' && !arrayObjVal.hasOwnProperty("rawFile")) {
-
-                      if (!docPath.endsWith(`/${index}/${fieldName}`)) {
-                        docPath += `/${index}/${fieldName}`;
-                      }
-
                       return await this.parseDataAndUpload(r, id, arrayObjVal, docPath, fieldName);
                     }
 
-                    if (!docPath.endsWith(parent)) {
-                      docPath += `/${parent}`;
+                    if (!indexAdded) {
+                      docPath += `/${index}/${fieldName}`;
+                      indexAdded = true;
                     }
 
                     return await this.parseDataField(

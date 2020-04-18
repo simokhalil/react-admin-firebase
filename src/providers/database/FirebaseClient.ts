@@ -296,7 +296,7 @@ export class FirebaseClient implements IFirebaseClient {
         if (isArray) {
           let parentAdded = false;
 
-          await Promise.all(
+
             (val as []).map(async (arrayObj, index) => {
               if (parent && !parentAdded) {
                 docPath += `/${parent}`;
@@ -304,14 +304,12 @@ export class FirebaseClient implements IFirebaseClient {
               }
 
               if (!!val[index] && val[index].hasOwnProperty("rawFile")) {
-                return await Promise.all([
-                  this.parseDataField(val[index], docPath, fieldName + index)
-                ]);
+                return await this.parseDataField(val[index], docPath, fieldName + index);
               } else {
 
                 let indexAdded = false;
 
-                return Promise.all(
+
                   Object.keys(arrayObj).map(async arrayObjFieldName => {
                     const arrayObjVal: any = arrayObj[arrayObjFieldName];
 
@@ -329,11 +327,9 @@ export class FirebaseClient implements IFirebaseClient {
                       docPath,
                       `/${arrayObjFieldName}`
                     );
-                  })
-                );
+                  });
               }
-            })
-          );
+            });
         }
 
         const docPathParts = docPath.split('/');

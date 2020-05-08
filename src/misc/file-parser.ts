@@ -1,7 +1,8 @@
 interface ParsedUpload {
   fieldDotsPath: string;
   fieldSlashesPath: string;
-  rawFile: File | any;
+  rawFile?: File | any;
+  sourceFieldName?: any,
 }
 
 export function parseDocGetAllUploads(obj: {}): ParsedUpload[] {
@@ -46,10 +47,13 @@ export function recusivelyParseObjectValue(
   }
   const isFileField = !!input && input.hasOwnProperty("rawFile");
   if (isFileField) {
+    const sourceFieldName = Object.keys(input).find((key) => key !== 'rawFile' && key !== 'title');
+
     uploads.push({
       fieldDotsPath: fieldPath,
       fieldSlashesPath: fieldPath.split('.').join('/'),
-      rawFile: input.rawFile,
+      sourceFieldName,
+      [sourceFieldName]: input.rawFile,
     });
     delete input.rawFile;
     return;

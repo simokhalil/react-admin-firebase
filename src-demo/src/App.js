@@ -18,6 +18,7 @@ const options = {
   // app: firebaseAppInstance
   // watch: ['posts'];
   // dontwatch: ['comments'];
+  timestamps: false,
 }
 
 const authProvider = FirebaseAuthProvider(firebaseConfig, options);

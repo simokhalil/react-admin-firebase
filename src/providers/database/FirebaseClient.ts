@@ -1,12 +1,18 @@
 import { FirebaseFirestore } from "@firebase/firestore-types";
 import { ResourceManager, IResource } from "./ResourceManager";
 import { RAFirebaseOptions } from "index";
-import { log, logError } from "../../misc/logger";
-import { sortArray, filterArray } from "../../misc/arrayHelpers";
+import {
+  filterArray,
+  joinPaths,
+  log,
+  logError,
+  messageTypes,
+  sortArray,
+  parseDocGetAllUploads,
+} from "../../misc";
 import { IFirebaseWrapper } from "./firebase/IFirebaseWrapper";
 import { IFirebaseClient } from "./IFirebaseClient";
-import { messageTypes } from "../../misc/messageTypes";
-import { joinPaths } from "../../misc/pathHelper";
+import { set } from 'lodash';
 
 export class FirebaseClient implements IFirebaseClient {
   private db: FirebaseFirestore;
@@ -283,7 +289,23 @@ export class FirebaseClient implements IFirebaseClient {
     }
   }
 
-  private async parseDataAndUpload(r: IResource, id: string, data: any, path?: string, parent?: string) {
+  private async parseDataAndUpload(r: IResource, id: string, data: any) {
+    if (!data) {
+      return data;
+    }
+    const docPath = r.collection.doc(id).path;
+
+    const uploads = parseDocGetAllUploads(data);
+    await Promise.all(
+      uploads.map(async (u) => {
+        const link = await this.uploadAndGetLink(u.rawFile, docPath, u.fieldSlashesPath)
+        set(data, u.fieldDotsPath + '.src', link);
+      })
+    );
+    return data;
+  }
+
+  /*private async parseDataAndUpload(r: IResource, id: string, data: any, path?: string, parent?: string) {
     if (!data) {
       return data;
     }
@@ -349,9 +371,9 @@ export class FirebaseClient implements IFirebaseClient {
 
     console.log('data', data);
     return data;
-  }
+  }*/
 
-  private async parseDataField(ref: any, docPath: string, fieldPath: string) {
+  /* private async parseDataField(ref: any, docPath: string, fieldPath: string) {
     const hasRawFile = !!ref && ref.hasOwnProperty("rawFile");
     if (!hasRawFile) {
       return;
@@ -361,7 +383,7 @@ export class FirebaseClient implements IFirebaseClient {
 
     ref[sourceFieldName] = await this.uploadAndGetLink(ref.rawFile, docPath, fieldPath);
     delete ref.rawFile;
-  }
+  } */
 
   private async uploadAndGetLink(
     rawFile: any,
